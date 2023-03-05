@@ -1,0 +1,121 @@
+#!/bin/bash
+
+usage() {
+    >&2 echo "Usage: $(basename $0) [-t thread] [-h .hic_file] [-j juicer_path] [-l cell_label] [-r resolution] [-c chrom_list] [-o output]"
+    >&2 echo ""
+    exit 1
+}
+
+while getopts ":t:h:j:l:r:c:o:" opt; do
+    case $opt in
+    t)
+        THREAD=$OPTARG
+    ;;
+    h)
+        HICFILE=$OPTARG
+    ;;
+    j)
+        JUICER=$OPTARG
+    ;;
+    l)
+        CELL=$OPTARG
+    ;;
+    r)
+        RESOLUTION=$OPTARG
+    ;;
+    c)
+        CHROM_LIST=$OPTARG
+    ;;
+    o)
+        OUT_FOLDER=$OPTARG
+    ;;
+    \>)
+        >&2 echo "Invalid options: -$OPTARG"
+        usage
+    ;;
+    [?])
+        usage
+    ;;
+    :)
+        >&2 echo "Option -$OPTARG requires an argument."
+        >&2 echo ""
+        usage
+    ;;
+    esac
+done
+
+# check arguments
+if [ -z $THREAD ]; then
+    THREAD=8
+fi 
+
+if [ -z $HICFILE ]; then
+    echo "must provide a .hic file with -h"
+    exit 1
+fi
+
+if [ -z $JUICER ]; then
+    echo "juicer path is not provided, assume juicer can be found in system path"
+    JUICER=juicer
+fi
+
+if [ -z $CELL ]; then
+    echo "must provide a cell label with -c"
+    exit 1
+fi
+
+if [ -z $RESOLUTION ]; then
+    echo "resolution is not provided, use 25000bp"
+    RESOLUTION=25000
+fi
+
+if [ -z $CHROM_LIST ]; then
+    echo "must provide a chromosome list with -c"
+    exit 1
+fi
+
+if [ -o $OUT_FOLDER ];then
+    echo "must provide an output folder with -o"
+    exit 1
+fi
+
+# prepare output folder
+OUT_FOLDER=$OUT_FOLDER/$CELL/res_$RESOLUTION
+mkdir -p $OUT_FOLDER
+rm -rf $OUT_FOLDER/*
+
+# prepare chromosome pairs
+chrom_list=($(cat $CHROM_LIST))
+CHROM_PAIR=""
+for (( i = 0; i < ${#chrom_list[@]}; i++ )); do
+    for (( j = i; j < ${#chrom_list[@]}; j++ )); do
+        CHROM_PAIR=$(echo ${CHROM_PAIR} ${chrom_list[$i]}-${chrom_list[$j]})
+    done
+done
+
+# main function
+dump_hic() {
+    PAIR=$1
+    JUICER=$2
+    HIC=$3
+    RESOLUTION=$4
+    CELL=$5
+    OUT_FOLDER=$6
+
+    IFS=- read -r CHR1 CHR2 <<< $PAIR
+
+    if [ $CHR1 != $CHR2 ]; then
+        OUT_FILE=$OUT_FOLDER/${CELL}_${CHR1}_${CHR2}_observed_VC_SQRT_${RESOLUTION}.pair
+	java -jar $JUICER dump observed VC_SQRT $HIC $CHR1 $CHR2 BP $RESOLUTION $OUT_FILE 
+    else
+        OUT_FILE=$OUT_FOLDER/${CELL}_${CHR1}_${CHR2}_oe_VC_SQRT_${RESOLUTION}.pair
+        java -jar $JUICER dump oe VC_SQRT $HIC $CHR1 $CHR2 BP $RESOLUTION $OUT_FILE 
+    fi
+    echo $OUT_FILE
+}
+
+# run
+export -f dump_hic
+
+parallel --no-notice -k -j ${THREAD} "dump_hic {} $JUICER $HICFILE $RESOLUTION $CELL $OUT_FOLDER" ::: $CHROM_PAIR
+

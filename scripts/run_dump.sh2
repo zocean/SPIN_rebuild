@@ -1,0 +1,71 @@
+#!/bin/bash
+
+#hic_dir="/home/yuchuanw/1_Project/1_Andy/1_Segment/MRF/implement/new/hg38/cross_cell_type/joint_analysis/data/HiC/hic"
+
+res_list="res_list"
+chr_list="chr_list"
+
+juicer="/home/yuchuanw/0_Software/HiC/juicer_tools.1.8.9_jcuda.0.8.jar"
+
+#module load java-1.8.0
+
+#for c in `ls $hic_dir`
+#do
+#	cell=${c%_hg38.hic}
+
+#name
+cell=$1
+hic=$2
+
+	echo $cell
+
+	mkdir -p $cell
+	rm -rf $cell/*
+
+	for res in `cat $res_list`
+	do
+		echo $res
+		mkdir -p $cell/res_$res
+		i=0
+		for chr1 in `cat $chr_list`
+		do
+			i=$((i+1))
+			j=0
+			for chr2 in `cat $chr_list`
+			do
+				echo $chr1,$chr2
+				j=$((j+1))
+				if [ "$i" -lt "$j" ]; then
+					echo ""
+					java -jar $juicer dump observed VC_SQRT $hic $chr1 $chr2 BP $res $cell/res_${res}/${cell}_${chr1}_${chr2}_observed_VC_SQRT_${res}.txt
+				fi
+				if [ "$i" -eq "$j" ]; then
+					echo ""
+					java -jar $juicer dump observed VC_SQRT $hic $chr1 $chr2 BP $res $cell/res_${res}/${cell}_${chr1}_${chr2}_observed_VC_SQRT_${res}.txt
+					java -jar $juicer dump oe VC_SQRT $hic $chr1 $chr2 BP $res $cell/res_${res}/${cell}_${chr1}_${chr2}_oe_VC_SQRT_${res}.txt
+				fi
+			done
+		done
+
+	done
+
+#done
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,84 @@
+#!/bin/bash
+
+usage() {
+    >&2 echo "Usage: $(basename $0) [-t thread] [-s pair2matrix.py_script] [-b bin_annotation] [-c cell_label] [-o folder_of_pair_file]"
+    >&2 echo ""
+    exit 1
+}
+
+while getopts ":t:s:b:c:o:" opt; do
+    case $opt in
+    t)
+        THREAD=$OPTARG
+    ;;
+    s)
+        SCRIPT=$OPTARG
+    ;;
+    b)
+        BIN=$OPTARG
+    ;;
+    c)
+        CELL=$OPTARG
+    ;;
+    o)
+        OUT_FOLDER=$OPTARG
+    ;;
+    \>)
+        >&2 echo "Invalid options: -$OPTARG"
+        usage
+    ;;
+    [?])
+        usage
+    ;;
+    :)
+        >&2 echo "Option -$OPTARG requires an argument."
+        >&2 echo ""
+        usage
+    ;;
+    esac
+done
+
+# check arguments
+if [ -z $THREAD ]; then
+    THREAD=8
+fi 
+
+if [ -z $SCRIPT ];then
+    echo "pair2matrix.py script must be provided with -s"
+    exit 1
+fi
+
+if [ -z $BIN ]; then
+    echo "bin annotation must be provided with -b"
+    exit 1
+fi
+
+if [ -z $CELL ]; then
+    echo "cell label must be provided with -c"
+    exit 1
+fi
+
+if [ -z $OUT_FOLDER ]; then
+    echo "must provide a folder containing the pair file dumped by juicer"
+    exit 1
+fi
+
+# get all input files
+INPUT=$(ls ${OUT_FOLDER}/*.pair | xargs)
+
+# main function
+pair2matrix() {
+    PAIR_FILE=$1
+    BIN=$2
+    CELL=$3
+    SCRIPT=$4
+    OUT_FILE=${PAIR_FILE%.pair}.matrix
+    
+    python $SCRIPT --hic $PAIR_FILE --bin $BIN --cell $CELL --output $OUT_FILE
+}
+
+# run
+export -f pair2matrix
+
+parallel --no-notice -k -j ${THREAD} "pair2matrix {} $BIN $CELL $SCRIPT " ::: $INPUT
+
