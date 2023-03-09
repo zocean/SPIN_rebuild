@@ -15,5 +15,8 @@ python scripts/get_edge.py --chr hg38_chrom_list --bin bin_25kb.noblacklist.geno
 # plot Hi-C input
 Rscript scripts/plot_HiC_input.R --bin bin_25kb.noblacklist.genome_bin.cell --cell K562 --hic demo_data/K562_chr1_chr1_oe_VC_SQRT_25000.pair --edge demo_data/K562.edge --chrom_1 chr1 --start_1 40000000 --end_1 50000000 --chrom_2 chr1 --start_2 40000000 --end_2 50000000 --hic_merge_factor 1 --pdf_height 7 --pdf_width 15 demo_data/demo_plot.pdf
 
-# run SPIN
+# process the TSA-seq data
 
+python scripts/power_transform.py --bw U54_data/k562/TSA_Seq/25kb/K562_SON_TSA_25kb_hg38_rep1_201911condE.bw U54_data/k562/TSA_Seq/25kb/K562_LMNB_TSA_25kb_hg38_rep1_201712condA.bw U54_data/k562/TSA_Seq/25kb/K562_WT_MKI67IP_2020_08_rep1_25kb_hg38.bw U54_data/k562/DamID/25kb/K562_LMNB1_DAMID_25kb_hg38_combined.bw --label TSA_SON TSA_LMNB1 TSA_MKI67IP DamID_LMNB1 --bin bin_25kb.noblacklist.genome_bin.cell --cell_name K562 --output result/K562.input --original result/K562.input.original
+
+# run SPIN
