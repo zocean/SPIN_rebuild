@@ -1,7 +1,7 @@
 #!/home/yangz6/Software/miniconda3/envs/base2/bin/python
 # Programmer : Yang Zhang 
 # Contact: yangz6@andrew.cmu.edu
-# Last-modified: 09 Mar 2023 06:03:56 PM
+# Last-modified: 09 Mar 2023 10:03:08 PM
 
 import os,sys,argparse
 from bx.bbi.bigwig_file import BigWigFile
@@ -109,12 +109,13 @@ def main():
             print('\t'.join(label_list), file = fout)
             for region in region_list:
                 array = []
-                value = region.anno[label]
-                if np.isnan(value):
-                    value = 'NA'
-                else:
-                    value = '{:.6f}'.format(value)
-                array.append(value)
+                for label  in label_list:
+                    value = region.anno[label]
+                    if np.isnan(value):
+                        value = 'NA'
+                    else:
+                        value = '{:.6f}'.format(value)
+                    array.append(value)
                 print('\t'.join(array), file = fout)
     with open(args.output, 'w') as fout:
         print('\t'.join(label_list), file = fout)
