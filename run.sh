@@ -19,4 +19,10 @@ Rscript scripts/plot_HiC_input.R --bin bin_25kb.noblacklist.genome_bin.cell --ce
 
 python scripts/power_transform.py --bw U54_data/k562/TSA_Seq/25kb/K562_SON_TSA_25kb_hg38_rep1_201911condE.bw U54_data/k562/TSA_Seq/25kb/K562_LMNB_TSA_25kb_hg38_rep1_201712condA.bw U54_data/k562/TSA_Seq/25kb/K562_WT_MKI67IP_2020_08_rep1_25kb_hg38.bw U54_data/k562/DamID/25kb/K562_LMNB1_DAMID_25kb_hg38_combined.bw --label TSA_SON TSA_LMNB1 TSA_MKI67IP DamID_LMNB1 --bin bin_25kb.noblacklist.genome_bin.cell --cell_name K562 --output result/K562.input --original result/K562.input.original
 
+# impurte missing input data
+Rscript scripts/impute_NA.R --output result/K562.input.imputed --na_string NA --seed 11 result/K562.input 2>&1 >result/K562.input.imputed.log
+
+# run HMM baseline
+python scripts/baseline_hmm.py --input result/K562.input.imputed --bin bin_25kb.noblacklist.genome_bin.cell --n_state 9 --seed 10 --merge_cutoff 250000 --cell_label K562 --output result/K562.state.hmm 
+
 # run SPIN
