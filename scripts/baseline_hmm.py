@@ -1,7 +1,7 @@
 #!/home/yangz6/Software/miniconda3/envs/base2/bin/python
 # Programmer : Yang Zhang 
 # Contact: yangz6@andrew.cmu.edu
-# Last-modified: 16 Mar 2023 10:49:50 PM
+# Last-modified: 17 Mar 2023 04:34:53 PM
 
 import os,sys,argparse
 import numpy as np
@@ -157,11 +157,11 @@ def main():
     # 
     assert result.shape[0] == len(bin_clean)
     with open(args.output, 'w') as fout:
-        print("chrom\tstart\tend\tbin\tstate", file = fout)
+        print("chrom\tstart\tend\tstate\tbin\tcell", file = fout)
         for idx in range(len(bin_clean)):
             region = bin_clean[idx]
             state = result[idx]
-            print("%s\t%d\t%d\t%s\t%d" % (region.chrom, region.start, region.end, region.bin_idx, state), file = fout)
+            print("%s\t%d\t%d\t%d\t%s\t%s" % (region.chrom, region.start, region.end, state, region.bin_idx, region.cell), file = fout)
  
 if __name__=="__main__":
     main()

@@ -25,4 +25,8 @@ Rscript scripts/impute_NA.R --output result/K562.input.imputed --na_string NA --
 # run HMM baseline
 python scripts/baseline_hmm.py --input result/K562.input.imputed --bin bin_25kb.noblacklist.genome_bin.cell --n_state 9 --seed 10 --merge_cutoff 250000 --cell_label K562 --output result/K562.state.hmm 
 
+# plot HMM result 
+Rscript scripts/plot_HiC_state.R --bin bin_25kb.noblacklist.genome_bin.cell --cell K562 --input result/K562.input.imputed --state result/K562.state.hmm --edge demo_data/K562.edge --chrom_1 chr1 --start_1 40000000 --end_1 50000000 --chrom_2 chr1 --start_2 40000000 --end_2 50000000 --hic_merge_factor 1 --pdf_height 7 --pdf_width 15 demo_data/demo_plot_hmm.pdf
+
+
 # run SPIN
