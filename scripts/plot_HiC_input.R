@@ -151,14 +151,14 @@ plot_all_data <- function(bin_anno, hic_pair, edge_file, hic_merg_factor, spin_r
   axis_2 <- set_axis_label(min(hic_edge_ds$start_2), max(hic_edge_ds$start_2), spin_res)
   # 
   plot_hic <- ggplot(hic_edge_ds, aes(x = start_2, y = start_1, fill = score )) +
-    geom_tile(width = hic_merge_factor, height = hic_merge_factor) +
+    geom_raster(width = hic_merge_factor, height = hic_merge_factor) +
     #coord_fixed(ratio = 1) +
     xlab("") +
     ylab("") +
     scale_x_continuous(expand = c(0,0), limits = c(min(hic_edge_ds$start_2), max(hic_edge_ds$start_2)), breaks = as.numeric(unlist(axis_2["break"])), labels = as.list(unlist(axis_2["label"]))) +
     scale_y_continuous(expand = c(0,0), limits = c(min(hic_edge_ds$start_1), max(hic_edge_ds$start_1)), breaks = as.numeric(unlist(axis_1["break"])), labels = as.list(unlist(axis_1["label"]))) +
     #scale_fill_distiller(name = "count", type= "seq", palette = 'Purples', direction = 1) +
-    scale_fill_viridis_c(name = "Average Hi-C score", option = "A", direction = -1, begin = 0, end = 0.9) +
+    scale_fill_viridis_c(name = "Average Hi-C score", option = "A", direction = -1, begin = 0, end = 0.9, limits = c(0, 40), oob = scales::squish) +
     theme_cowplot() +
     theme(legend.position = 'bottom',
           legend.margin  = margin(t = -1, unit = 'cm'), 
