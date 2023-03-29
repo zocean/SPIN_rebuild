@@ -1,7 +1,7 @@
 #!/home/yangz6/Software/Python-2.7.5/python-2.7.5
 # Programmer : Yang Zhang 
 # Contact: yzhan116@illinois.edu
-# Last-modified: 18 Mar 2023 01:16:11 AM
+# Last-modified: 29 Mar 2023 07:49:10 PM
 
 import os,sys,argparse
 import pandas as pd
@@ -78,7 +78,6 @@ def main():
     # check output folder 
     if os.path.exists(args.output):
         print("output folder %s already exsits, overwrite content inside" % (args.output), file = sys.stdout)
-        os.system("rm %s/*" % (args.output))
     else:
         os.mkdir(args.output)
         pass
@@ -96,6 +95,8 @@ def main():
     # sort the state by TSA_SON values
     state_TSA_mean = bin_state.groupby(['cell', 'state'])['TSA_SON'].mean().reset_index()
     state_order = list(state_TSA_mean.sort_values(by = 'TSA_SON', ascending = False)['state'])
+    print("Reorder state by TSA-seq from high to low")
+    print(state_order)
     color_list = ['158,1,66', '220,73,76', '248,141,81', '253,211,128', '255,255,191', '215,239,155', '136,207,164', '63,150,183', '94,79,162']
     state2color = {}
     for state, color in zip(state_order, color_list):
